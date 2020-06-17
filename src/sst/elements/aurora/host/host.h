@@ -39,6 +39,9 @@ class Host : public Hermes::OS
         "",
         SST::Aurora::Host 
     )
+    SST_ELI_DOCUMENT_PORTS(
+        {"nic",     "link to NIC",  {} },
+    )
 
     Host(ComponentId_t id, Params& params);
 	~Host() {}
