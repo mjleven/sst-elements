@@ -448,6 +448,11 @@ class MpiPt2Pt : public Hermes::Mpi::Interface {
 		size_t length = m_numRecvBuffers *  ( m_shortMsgLength + sizeof(getMsgHdrSize()) );
 		m_dbg.debug(CALL_INFO,1,1,"length=%zu\n",length);
 
+		if( length > 1024*1024*1024 ) {
+			m_dbg.fatal(CALL_INFO,-1, "can't alloc buffer space, numSendBuffers=%d bufferSize=%zu total=%zu\n",
+				m_numSendBuffers, m_shortMsgLength + sizeof(getMsgHdrSize()),  length);
+		}
+
 		m_dbg.debug(CALL_INFO,1,1,"m_sendBuff vaddr=0x%" PRIx64 " backing=%p\n",m_sendBuff.getSimVAddr(), m_sendBuff.getBacking());
 		for ( int i = 0; i < m_numSendBuffers; i++ ) {
 			size_t offset = i * ( m_shortMsgLength + sizeof(getMsgHdrSize()) );
