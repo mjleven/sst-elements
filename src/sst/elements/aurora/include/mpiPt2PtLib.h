@@ -436,7 +436,7 @@ class MpiPt2Pt : public Hermes::Mpi::Interface {
 	}
 
 	void mallocSendBuffers( Hermes::Callback* callback, int retval ) {
-		size_t length = m_numSendBuffers * ( m_shortMsgLength + sizeof(getMsgHdrSize()) );
+		size_t length = m_numSendBuffers * ( m_shortMsgLength + getMsgHdrSize() );
 		m_dbg.debug(CALL_INFO,1,1,"length=%zu\n",length);
 
 		Hermes::Callback* cb = new Hermes::Callback;
@@ -445,17 +445,17 @@ class MpiPt2Pt : public Hermes::Mpi::Interface {
 	}
 
 	void mallocRecvBuffers( Hermes::Callback* callback, int retval ) {
-		size_t length = m_numRecvBuffers *  ( m_shortMsgLength + sizeof(getMsgHdrSize()) );
+		size_t length = m_numRecvBuffers *  ( m_shortMsgLength + getMsgHdrSize() );
 		m_dbg.debug(CALL_INFO,1,1,"length=%zu\n",length);
 
 		if( length > 1024*1024*1024 ) {
 			m_dbg.fatal(CALL_INFO,-1, "can't alloc buffer space, numSendBuffers=%d bufferSize=%zu total=%zu\n",
-				m_numSendBuffers, m_shortMsgLength + sizeof(getMsgHdrSize()),  length);
+				m_numSendBuffers, m_shortMsgLength + getMsgHdrSize(),  length);
 		}
 
 		m_dbg.debug(CALL_INFO,1,1,"m_sendBuff vaddr=0x%" PRIx64 " backing=%p\n",m_sendBuff.getSimVAddr(), m_sendBuff.getBacking());
 		for ( int i = 0; i < m_numSendBuffers; i++ ) {
-			size_t offset = i * ( m_shortMsgLength + sizeof(getMsgHdrSize()) );
+			size_t offset = i * ( m_shortMsgLength + getMsgHdrSize() );
 			m_sendBuffList[i].buf = new Hermes::MemAddr( m_sendBuff.getSimVAddr(offset), m_sendBuff.getBacking(offset) );
 			m_dbg.debug(CALL_INFO,1,1,"m_sendBuff[%d] vaddr=0x%" PRIx64 " backing=%p\n", i, m_sendBuffList[i].buf->getSimVAddr(),  m_sendBuffList[i].buf->getBacking());
 			m_sendBuffList[i].handle = 1;
@@ -464,6 +464,7 @@ class MpiPt2Pt : public Hermes::Mpi::Interface {
 		Hermes::Callback* cb = new Hermes::Callback;
 		*cb = std::bind( &MpiPt2Pt::postRecvBuffer, this, callback, m_numRecvBuffers, std::placeholders::_1 );
 		misc().malloc( &m_recvBuff, length, true, cb );
+		m_recvBufLength = length;
 	}
 
 	void processSendQ( Hermes::Callback* callback, int retval )
@@ -518,6 +519,7 @@ class MpiPt2Pt : public Hermes::Mpi::Interface {
 	int m_numSendBuffers;
 
 	Hermes::MemAddr m_recvBuff;
+	size_t m_recvBufLength;
 
 	SendBuf* allocSendBuf() {
 
