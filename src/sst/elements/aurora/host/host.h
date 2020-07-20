@@ -79,6 +79,7 @@ class Host : public Hermes::OS
 		void* backing = NULL;
 		if ( backed ) {
 			backing = ::malloc( length );
+			assert(backing);
 		}
 		*addr = Hermes::MemAddr( m_mallocAddr, backing  ); 
 		m_mallocAddr += length; 

@@ -457,6 +457,8 @@ void RvmaMpiPt2PtLib::postRecvBuffer( Hermes::Callback* callback, int count, int
     size_t length = m_shortMsgLength + sizeof(MsgHdr);
     Hermes::MemAddr addr = m_recvBuff.offset( count * length );
 
+	assert( count * length + length <= m_recvBufLength); 
+
 	Hermes::RVMA::Completion* completion = new Hermes::RVMA::Completion;
     m_dbg.debug(CALL_INFO,1,1,"completion=%p count=%d retval=%d vaddr=0x%" PRIx64 " backing=%p\n", completion, count,retval, addr.getSimVAddr(), addr.getBacking());
 	m_completionQ.push( completion );
